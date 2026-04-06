@@ -176,8 +176,11 @@
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
         };
 
-        function renderItinerary(data) {
-            document.getElementById('resTitle').textContent = data.destinasi;
+        function renderItinerary(dbData) {
+            const data = dbData;
+            const itinerary = data.itinerary_data;
+            
+            document.getElementById('resTitle').textContent = itinerary.title || data.destinasi;
             
             const d = new Date(data.tanggal);
             const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
@@ -191,70 +194,89 @@
             const timelineContainer = document.getElementById('itineraryTimeline');
             timelineContainer.innerHTML = '';
 
-            for(let i = 0; i < data.durasi; i++) {
-                let dayData = mockItineraryData[i % 3]; 
-                
-                let itemsHTML = '';
-                dayData.items.forEach((item, index) => {
-                    const costDisplay = item.cost === 0 ? 
-                        '<span class="text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded text-xs">Gratis</span>' : 
-                        `<span class="text-gray-600 font-semibold text-sm">${formatRupiah(item.cost)}</span>`;
-                    
-                    const isLast = index === dayData.items.length - 1;
-                    
-                    itemsHTML += `
-                    <div class="relative flex gap-4 sm:gap-6 group">
-                        ${!isLast ? '<div class="absolute left-[19px] sm:left-[23px] top-10 bottom-[-16px] w-[2px] bg-gray-200 group-hover:bg-earth-300 transition-colors"></div>' : ''}
-                        
-                        <div class="relative z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full ${item.bg} flex justify-center items-center shrink-0 border-4 border-white shadow-sm transition transform group-hover:scale-110 group-hover:rotate-6">
-                            <i class="fa-solid ${item.icon} ${item.color} text-sm sm:text-base"></i>
-                        </div>
+            if (itinerary.days && itinerary.days.length > 0) {
+                itinerary.days.forEach((dayData, i) => {
+                    let itemsHTML = '';
+                    if (dayData.items) {
+                        dayData.items.forEach((item, index) => {
+                            const costDisplay = item.cost === 0 ? 
+                                '<span class="text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded text-xs">Gratis</span>' : 
+                                `<span class="text-gray-600 font-semibold text-sm">${formatRupiah(item.cost)}</span>`;
+                            
+                            const isLast = index === dayData.items.length - 1;
+                            
+                            itemsHTML += `
+                            <div class="relative flex gap-4 sm:gap-6 group">
+                                ${!isLast ? '<div class="absolute left-[19px] sm:left-[23px] top-10 bottom-[-16px] w-[2px] bg-gray-200 group-hover:bg-earth-300 transition-colors"></div>' : ''}
+                                
+                                <div class="relative z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full ${item.bg || 'bg-earth-100'} flex justify-center items-center shrink-0 border-4 border-white shadow-sm transition transform group-hover:scale-110 group-hover:rotate-6">
+                                    <i class="fa-solid ${item.icon || 'fa-map-pin'} ${item.color || 'text-earth-500'} text-sm sm:text-base"></i>
+                                </div>
 
-                        <div class="flex-grow bg-white border border-gray-100 rounded-xl p-4 shadow-sm hover:shadow-md transition mb-4 sm:mb-6 cursor-default">
-                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-4">
-                                <div>
-                                    <h4 class="font-bold text-gray-800 text-base">${item.name}</h4>
-                                    <div class="flex items-center gap-2 mt-1">
-                                        <span class="text-earth-600 text-sm font-bold flex items-center"><i class="fa-regular fa-clock mr-1"></i> ${item.time}</span>
-                                        <span class="text-gray-300">&bull;</span>
-                                        ${costDisplay}
+                                <div class="flex-grow bg-white border border-gray-100 rounded-xl p-4 shadow-sm hover:shadow-md transition mb-4 sm:mb-6 cursor-default">
+                                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-4">
+                                        <div>
+                                            <h4 class="font-bold text-gray-800 text-base">${item.name}</h4>
+                                            <div class="flex items-center gap-2 mt-1">
+                                                <span class="text-earth-600 text-sm font-bold flex items-center"><i class="fa-regular fa-clock mr-1"></i> ${item.time}</span>
+                                                <span class="text-gray-300">&bull;</span>
+                                                ${costDisplay}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            `;
+                        });
+                    }
+
+                    const dayHTML = `
+                    <div class="bg-white rounded-2xl shadow-sm border border-earth-100 overflow-hidden fade-in" style="animation-delay: ${i * 100}ms">
+                        <div class="bg-earth-50 border-b border-earth-100 px-5 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                            <div class="bg-earth-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg shrink-0 shadow-inner">
+                                H${dayData.dayId || i + 1}
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg text-earth-900">${dayData.title}</h3>
+                                <p class="text-gray-500 text-sm">${dayData.desc || ''}</p>
+                            </div>
+                        </div>
+                        <div class="p-5 sm:p-6 pb-2">
+                            ${itemsHTML}
                         </div>
                     </div>
                     `;
+
+                    timelineContainer.innerHTML += dayHTML;
                 });
-
-                const dayHTML = `
-                <div class="bg-white rounded-2xl shadow-sm border border-earth-100 overflow-hidden fade-in" style="animation-delay: ${i * 100}ms">
-                    <div class="bg-earth-50 border-b border-earth-100 px-5 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                        <div class="bg-earth-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg shrink-0 shadow-inner">
-                            H${i + 1}
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-lg text-earth-900">${dayData.title}</h3>
-                            <p class="text-gray-500 text-sm">${dayData.desc}</p>
-                        </div>
-                    </div>
-                    <div class="p-5 sm:p-6 pb-2">
-                        ${itemsHTML}
-                    </div>
-                </div>
-                `;
-
-                timelineContainer.innerHTML += dayHTML;
+            } else {
+                timelineContainer.innerHTML = '<div class="text-center p-10 bg-white rounded-xl shadow-sm"><p class="text-gray-500">Jadwal kosong atau format data dari AI tidak terbaca dengan baik.</p></div>';
             }
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const dataStr = localStorage.getItem('wisataData');
-            if(dataStr) {
-                const data = JSON.parse(dataStr);
-                renderItinerary(data);
+        window.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            const timelineContainer = document.getElementById('itineraryTimeline');
+            
+            if(id) {
+                // Fetch data from backend
+                try {
+                    timelineContainer.innerHTML = '<div class="text-center p-10"><i class="fa-solid fa-circle-notch fa-spin text-earth-600 text-3xl"></i><p class="mt-4 text-earth-700 font-semibold">Memuat data dari database...</p></div>';
+                    
+                    const response = await fetch('/api/schedule/' + id);
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        renderItinerary(result.data);
+                    } else {
+                        timelineContainer.innerHTML = `<div class="text-center p-10 bg-white rounded-xl shadow-sm border-red-200 border"><p class="text-red-500">${result.message}</p></div>`;
+                    }
+                } catch(error) {
+                    timelineContainer.innerHTML = '<div class="text-center p-10 bg-white rounded-xl shadow-sm border-red-200 border"><p class="text-red-500">Terjadi kesalahan saat memuat jadwal.</p></div>';
+                }
             } else {
-                // Tampilkan pesan kosong jika tidak ada data dari index
-                document.getElementById('itineraryTimeline').innerHTML = '<div class="text-center p-10 bg-white rounded-xl shadow-sm"><p class="text-gray-500">Belum ada jadwal yang dibuat. Silakan buat di halaman utama dahulu.</p></div>';
+                timelineContainer.innerHTML = '<div class="text-center p-10 bg-white rounded-xl shadow-sm"><p class="text-gray-500">ID tidak ditemukan. Silakan buat di halaman utama dahulu.</p></div>';
             }
         });
     </script>

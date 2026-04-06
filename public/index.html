@@ -386,7 +386,7 @@
         };
 
         // Form Submit Handler
-        form.addEventListener('submit', function (e) {
+        form.addEventListener('submit', async function (e) {
             e.preventDefault();
 
             // Collect Data
@@ -407,14 +407,24 @@
             resultState.classList.add('hidden');
             skeletonView.classList.remove('hidden');
 
-            // Save data to localStorage to pass to jadwal.html
-            localStorage.setItem('wisataData', JSON.stringify(data));
-
-            // Simulate Network Delay (2 seconds)
-            setTimeout(() => {
-                // Redirect to jadwal.html
-                window.location.href = 'jadwal.html';
-            }, 2000);
+            try {
+                const response = await fetch('/api/generate-schedule', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    window.location.href = 'jadwal.html?id=' + result.id;
+                } else {
+                    alert('Gagal membuat jadwal: ' + result.message);
+                    location.reload();
+                }
+            } catch(error) {
+                alert('Terjadi kesalahan koneksi server.');
+                location.reload();
+            }
         });
 
         function renderItinerary(data) {
