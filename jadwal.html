@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Wisata - PronaDesa</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        earth: {
+                            50: '#f4f5f0',
+                            100: '#e5e8de',
+                            200: '#ccdac0',
+                            300: '#aabf99',
+                            400: '#849d70',
+                            500: '#627c4d',
+                            600: '#4b6139',
+                            700: '#3d4d2f',
+                            800: '#323e27',
+                            900: '#2a3423',
+                            wood: '#8c6b4a',
+                            woodDark: '#6b4e33'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f4f5f0; }
+        ::-webkit-scrollbar-thumb { background: #aabf99; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #849d70; }
+        
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-earth-50 text-gray-800 min-h-screen antialiased flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-earth-800 text-white shadow-xl relative overflow-hidden">
+        <!-- Abstract Nature Background Pattern -->
+        <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M54.627 0l.83.83-54.627 54.627-.83-.83L54.627 0zm-14.142 0l.83.83-40.485 40.485-.83-.83L40.485 0zm-14.142 0l.83.83-26.343 26.343-.83-.83L26.342 0zM12.2 0l.83.83-12.2 12.2-.83-.83L12.2 0zM60 4.373l-.83-.83L4.373 60l.83.83L60 4.373zm0 14.142l-.83-.83L18.515 60l.83.83L60 18.515zm0 14.142l-.83-.83L32.657 60l.83.83L60 32.657zm0 14.142l-.83-.83L46.8 60l.83.83L60 46.8z\' fill=\'%23ffffff\' fill-rule=\'evenodd\'/%3E%3C/svg%3E');"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 py-6 relative z-10 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-earth-600 p-2 rounded-lg text-earth-100">
+                    <i class="fa-solid fa-leaf text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-tight sm:text-3xl">PronaDesa</h1>
+            </div>
+            <a href="index.html" class="flex items-center gap-2 text-earth-100 hover:text-white transition font-medium">
+                <i class="fa-solid fa-arrow-left"></i> Kembali
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-4xl mx-auto w-full px-4 py-10 sm:px-6 lg:px-8">
+        
+        <div class="flex flex-col space-y-6 fade-in">
+            <!-- Header Schedule -->
+            <div class="text-center mb-4">
+                <h2 class="text-3xl font-extrabold text-earth-900 mb-3">Detail Jadwal Wisata Anda</h2>
+                <p class="text-earth-600">Rencana perjalanan lengkap untuk pengalaman tak terlupakan</p>
+            </div>
+
+            <!-- Result Overview Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-earth-100 p-6 sm:p-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-earth-100 rounded-bl-full opacity-50 z-0"></div>
+                <div class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center relative z-10 gap-4">
+                    <div>
+                        <h2 id="resTitle" class="text-2xl sm:text-3xl font-extrabold text-earth-900 mb-2">Memuat Data...</h2>
+                        <div class="flex flex-wrap items-center gap-3 text-sm font-medium text-gray-500">
+                            <span class="flex items-center gap-1.5"><i class="fa-regular fa-calendar text-earth-500"></i> <span id="resDate">-</span></span>
+                            <span>&bull;</span>
+                            <span class="flex items-center gap-1.5"><i class="fa-regular fa-clock text-earth-500"></i> <span id="resDuration">-</span></span>
+                            <span>&bull;</span>
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-users text-earth-500"></i> <span id="resPaxNum">-</span></span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-start sm:items-end gap-2">
+                        <span id="resBadge" class="bg-earth-wood text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider inline-flex items-center gap-1">
+                            <i class="fa-solid fa-star"></i> -
+                        </span>
+                        <span class="text-sm font-bold text-earth-700 bg-earth-50 px-2 py-1 rounded-md border border-earth-100">
+                            Estimasi Max: <span id="resBudgetStr">Rp 0</span>/Pax
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Container -->
+            <div id="itineraryTimeline" class="space-y-6 mt-6">
+                <!-- Data akan dimuat melalui Javascript -->
+            </div>
+
+            <!-- Action Bottom -->
+            <div class="flex justify-center pt-8 pb-12 gap-4">
+                <button onclick="window.print()" class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 font-semibold py-3 px-8 rounded-xl shadow-sm transition flex items-center gap-2 text-lg">
+                    <i class="fa-solid fa-print"></i> Cetak PDF
+                </button>
+                <button class="bg-earth-600 hover:bg-earth-700 text-white font-semibold py-3 px-8 rounded-xl shadow-md transition flex items-center gap-2 text-lg">
+                    <i class="fa-solid fa-share-nodes"></i> Bagikan Jadwal
+                </button>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-earth-900 text-earth-200 py-6 text-center text-sm mt-auto">
+        <p>&copy; 2024 PronaDesa - Sistem Perencana Desa Wisata. Prototipe Frontend.</p>
+    </footer>
+
+</body>
+    <script>
+        // Mock Database of Activities per day (sama dengan yang di index.html)
+        const mockItineraryData = [
+            {
+                dayId: 1,
+                title: "Eksplorasi Awal & Sambutan Hangat",
+                desc: "Hari pertama untuk beradaptasi, menikmati suasana lokal, dan perkenalan dengan budaya setempat.",
+                items: [
+                    { time: "09:00", name: "Tiba dan Penyambutan Khas Desa", cost: 0, icon: "fa-seedling", color: "text-earth-500", bg: "bg-earth-100" },
+                    { time: "10:30", name: "Check-in Homestay & Welcome Drink", cost: 25000, icon: "fa-house", color: "text-earth-wood", bg: "bg-orange-50" },
+                    { time: "12:00", name: "Makan Siang Bancakan Pendoppo", cost: 65000, icon: "fa-utensils", color: "text-red-500", bg: "bg-red-50" },
+                    { time: "14:00", name: "Keliling Desa & Interaksi Warga", cost: 15000, icon: "fa-person-walking", color: "text-blue-500", bg: "bg-blue-50" },
+                    { time: "19:00", name: "Makan Malam & Istirahat", cost: 50000, icon: "fa-moon", color: "text-indigo-500", bg: "bg-indigo-50" }
+                ]
+            },
+            {
+                dayId: 2,
+                title: "Petualangan Alam Penuh Makna",
+                desc: "Mendekatkan diri dengan alam liar dan keindahan tersembunyi yang ada di sekitar desa.",
+                items: [
+                    { time: "07:00", name: "Sarapan Pagi Nasi Jagung", cost: 20000, icon: "fa-mug-hot", color: "text-yellow-600", bg: "bg-yellow-50" },
+                    { time: "08:30", name: "Trekking Menuju Air Terjun Tersembunyi", cost: 35000, icon: "fa-person-hiking", color: "text-green-600", bg: "bg-green-50" },
+                    { time: "12:30", name: "Piknik Makan Siang Tepi Sungai", cost: 55000, icon: "fa-basket-shopping", color: "text-red-600", bg: "bg-red-50" },
+                    { time: "15:00", name: "Ikut Panen Sayur Bersama Petani", cost: 10000, icon: "fa-leaf", color: "text-earth-600", bg: "bg-earth-50" },
+                    { time: "19:30", name: "Api Unggun & Jagung Bakar", cost: 25000, icon: "fa-fire", color: "text-orange-500", bg: "bg-orange-50" }
+                ]
+            },
+            {
+                dayId: 3,
+                title: "Pusaka Budaya & Cenderamata",
+                desc: "Mempelajari kearifan lokal, kerajinan tangan, dan bersiap untuk perjalanan pulang.",
+                items: [
+                    { time: "07:30", name: "Sarapan Santai Jajanan Pasar", cost: 15000, icon: "fa-bowl-food", color: "text-yellow-600", bg: "bg-yellow-50" },
+                    { time: "09:00", name: "Workshop Membuat Kerajinan Bambu", cost: 75000, icon: "fa-hands", color: "text-earth-wood", bg: "bg-orange-50" },
+                    { time: "11:30", name: "Belanja Oleh-Oleh Khas BUMDes", cost: 150000, icon: "fa-store", color: "text-blue-500", bg: "bg-blue-50" },
+                    { time: "13:00", name: "Check-out Homestay & Pamitan", cost: 0, icon: "fa-handshake", color: "text-gray-500", bg: "bg-gray-100" }
+                ]
+            }
+        ];
+
+        const formatRupiah = (number) => {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        };
+
+        function renderItinerary(data) {
+            document.getElementById('resTitle').textContent = data.destinasi;
+            
+            const d = new Date(data.tanggal);
+            const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+            document.getElementById('resDate').textContent = d.toLocaleDateString('id-ID', dateOptions);
+            
+            document.getElementById('resDuration').textContent = `${data.durasi} Hari`;
+            document.getElementById('resPaxNum').textContent = `${data.pax} Orang`;
+            document.getElementById('resBadge').innerHTML = `<i class="fa-solid fa-star"></i> Tema: ${data.preferensi}`;
+            document.getElementById('resBudgetStr').textContent = formatRupiah(data.budget);
+
+            const timelineContainer = document.getElementById('itineraryTimeline');
+            timelineContainer.innerHTML = '';
+
+            for(let i = 0; i < data.durasi; i++) {
+                let dayData = mockItineraryData[i % 3]; 
+                
+                let itemsHTML = '';
+                dayData.items.forEach((item, index) => {
+                    const costDisplay = item.cost === 0 ? 
+                        '<span class="text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded text-xs">Gratis</span>' : 
+                        `<span class="text-gray-600 font-semibold text-sm">${formatRupiah(item.cost)}</span>`;
+                    
+                    const isLast = index === dayData.items.length - 1;
+                    
+                    itemsHTML += `
+                    <div class="relative flex gap-4 sm:gap-6 group">
+                        ${!isLast ? '<div class="absolute left-[19px] sm:left-[23px] top-10 bottom-[-16px] w-[2px] bg-gray-200 group-hover:bg-earth-300 transition-colors"></div>' : ''}
+                        
+                        <div class="relative z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full ${item.bg} flex justify-center items-center shrink-0 border-4 border-white shadow-sm transition transform group-hover:scale-110 group-hover:rotate-6">
+                            <i class="fa-solid ${item.icon} ${item.color} text-sm sm:text-base"></i>
+                        </div>
+
+                        <div class="flex-grow bg-white border border-gray-100 rounded-xl p-4 shadow-sm hover:shadow-md transition mb-4 sm:mb-6 cursor-default">
+                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-4">
+                                <div>
+                                    <h4 class="font-bold text-gray-800 text-base">${item.name}</h4>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-earth-600 text-sm font-bold flex items-center"><i class="fa-regular fa-clock mr-1"></i> ${item.time}</span>
+                                        <span class="text-gray-300">&bull;</span>
+                                        ${costDisplay}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                });
+
+                const dayHTML = `
+                <div class="bg-white rounded-2xl shadow-sm border border-earth-100 overflow-hidden fade-in" style="animation-delay: ${i * 100}ms">
+                    <div class="bg-earth-50 border-b border-earth-100 px-5 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                        <div class="bg-earth-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg shrink-0 shadow-inner">
+                            H${i + 1}
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-earth-900">${dayData.title}</h3>
+                            <p class="text-gray-500 text-sm">${dayData.desc}</p>
+                        </div>
+                    </div>
+                    <div class="p-5 sm:p-6 pb-2">
+                        ${itemsHTML}
+                    </div>
+                </div>
+                `;
+
+                timelineContainer.innerHTML += dayHTML;
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const dataStr = localStorage.getItem('wisataData');
+            if(dataStr) {
+                const data = JSON.parse(dataStr);
+                renderItinerary(data);
+            } else {
+                // Tampilkan pesan kosong jika tidak ada data dari index
+                document.getElementById('itineraryTimeline').innerHTML = '<div class="text-center p-10 bg-white rounded-xl shadow-sm"><p class="text-gray-500">Belum ada jadwal yang dibuat. Silakan buat di halaman utama dahulu.</p></div>';
+            }
+        });
+    </script>
+</html>
