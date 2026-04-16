@@ -1,9 +1,15 @@
-require('dotenv').config();
-const express = require('express');
-const { Pool } = require('pg');
-const cors = require('cors');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const path = require('path');
+import dotenv from 'dotenv';
+import express from 'express';
+import pg from 'pg';
+import cors from 'cors';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+dotenv.config();
+const { Pool } = pg;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 3000;
