@@ -133,44 +133,7 @@
 
 </body>
     <script>
-        // Mock Database of Activities per day (sama dengan yang di index.html)
-        const mockItineraryData = [
-            {
-                dayId: 1,
-                title: "Eksplorasi Awal & Sambutan Hangat",
-                desc: "Hari pertama untuk beradaptasi, menikmati suasana lokal, dan perkenalan dengan budaya setempat.",
-                items: [
-                    { time: "09:00", name: "Tiba dan Penyambutan Khas Desa", cost: 0, icon: "fa-seedling", color: "text-earth-500", bg: "bg-earth-100" },
-                    { time: "10:30", name: "Check-in Homestay & Welcome Drink", cost: 25000, icon: "fa-house", color: "text-earth-wood", bg: "bg-orange-50" },
-                    { time: "12:00", name: "Makan Siang Bancakan Pendoppo", cost: 65000, icon: "fa-utensils", color: "text-red-500", bg: "bg-red-50" },
-                    { time: "14:00", name: "Keliling Desa & Interaksi Warga", cost: 15000, icon: "fa-person-walking", color: "text-blue-500", bg: "bg-blue-50" },
-                    { time: "19:00", name: "Makan Malam & Istirahat", cost: 50000, icon: "fa-moon", color: "text-indigo-500", bg: "bg-indigo-50" }
-                ]
-            },
-            {
-                dayId: 2,
-                title: "Petualangan Alam Penuh Makna",
-                desc: "Mendekatkan diri dengan alam liar dan keindahan tersembunyi yang ada di sekitar desa.",
-                items: [
-                    { time: "07:00", name: "Sarapan Pagi Nasi Jagung", cost: 20000, icon: "fa-mug-hot", color: "text-yellow-600", bg: "bg-yellow-50" },
-                    { time: "08:30", name: "Trekking Menuju Air Terjun Tersembunyi", cost: 35000, icon: "fa-person-hiking", color: "text-green-600", bg: "bg-green-50" },
-                    { time: "12:30", name: "Piknik Makan Siang Tepi Sungai", cost: 55000, icon: "fa-basket-shopping", color: "text-red-600", bg: "bg-red-50" },
-                    { time: "15:00", name: "Ikut Panen Sayur Bersama Petani", cost: 10000, icon: "fa-leaf", color: "text-earth-600", bg: "bg-earth-50" },
-                    { time: "19:30", name: "Api Unggun & Jagung Bakar", cost: 25000, icon: "fa-fire", color: "text-orange-500", bg: "bg-orange-50" }
-                ]
-            },
-            {
-                dayId: 3,
-                title: "Pusaka Budaya & Cenderamata",
-                desc: "Mempelajari kearifan lokal, kerajinan tangan, dan bersiap untuk perjalanan pulang.",
-                items: [
-                    { time: "07:30", name: "Sarapan Santai Jajanan Pasar", cost: 15000, icon: "fa-bowl-food", color: "text-yellow-600", bg: "bg-yellow-50" },
-                    { time: "09:00", name: "Workshop Membuat Kerajinan Bambu", cost: 75000, icon: "fa-hands", color: "text-earth-wood", bg: "bg-orange-50" },
-                    { time: "11:30", name: "Belanja Oleh-Oleh Khas BUMDes", cost: 150000, icon: "fa-store", color: "text-blue-500", bg: "bg-blue-50" },
-                    { time: "13:00", name: "Check-out Homestay & Pamitan", cost: 0, icon: "fa-handshake", color: "text-gray-500", bg: "bg-gray-100" }
-                ]
-            }
-        ];
+
 
         const formatRupiah = (number) => {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);

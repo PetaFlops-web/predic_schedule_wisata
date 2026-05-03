@@ -2,9 +2,9 @@ import dotenv from 'dotenv';
 import express from 'express';
 import pg from 'pg';
 import cors from 'cors';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { HfInference } from '@huggingface/inference';
 
 dotenv.config();
 const { Pool } = pg;
@@ -26,13 +26,19 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Tambahkan baris ini untuk testing
+console.log("Cek isi token:", process.env.HuggingFace ? process.env.HuggingFace.substring(0, 5) + "..." : "KOSONG/UNDEFINED");
+
+// Hugging Face API Configuration
+const hf = new HfInference(process.env.HuggingFace);
 
 app.post('/api/generate-schedule', async (req, res) => {
     try {
         const { destinasi, tanggal, durasi, pax, budget, preferensi } = req.body;
         
-        // 1. Prompt Gemini API
+        console.log('📥 Request diterima:', { destinasi, tanggal, durasi, pax, budget, preferensi });
+
+        // 1. Prompt Hugging Face API
         const prompt = `
 Anda adalah seorang ahli pariwisata. Buatkan itinerary desa wisata untuk ${destinasi} selama ${durasi} hari.
 Jumlah orang: ${pax} pax.
@@ -60,38 +66,82 @@ Format balasan HARUS JSON murni tanpa markdown/backticks, dengan struktur beriku
         }
     ]
 }
-Pastikan data dapat langsung diparse oleh JSON.parse().
+Pastikan data dapat langsung diparse oleh JSON.parse(). Jangan tambahkan teks apapun selain JSON.
         `;
 
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-        const result = await model.generateContent(prompt);
-        let responseText = result.response.text().trim();
-        
-        // Bersihkan jika ada markdown JSON output dari gemini
-        if (responseText.startsWith('\`\`\`json')) {
-            responseText = responseText.replace(/^\`\`\`json/m, '').replace(/\`\`\`$/m, '').trim();
-        } else if (responseText.startsWith('\`\`\`')) {
-            responseText = responseText.replace(/^\`\`\`/m, '').replace(/\`\`\`$/m, '').trim();
+        console.log('🤖 Mengirim prompt ke Hugging Face API...');
+
+        let responseText = '';
+        const maxRetries = 3;
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                const apiResponse = await hf.chatCompletion({
+                    model: "Qwen/Qwen2.5-72B-Instruct",
+                    messages: [
+                        { role: "system", content: "Kamu adalah asisten ahli pariwisata Indonesia. Selalu balas dalam format JSON murni tanpa markdown." },
+                        { role: "user", content: prompt }
+                    ],
+                    max_tokens: 4096,
+                    temperature: 0.7
+                });
+
+                responseText = apiResponse.choices[0].message.content.trim();
+                console.log(`✅ Hugging Face response diterima (attempt ${attempt})`);
+                break;
+            } catch (apiError) {
+                const status = apiError.statusCode || apiError.status;
+                if ((status === 429 || status === 503) && attempt < maxRetries) {
+                    const waitTime = status === 503 ? 20 : attempt * 10;
+                    console.warn(`⏳ API Error (${status}). Retry ${attempt}/${maxRetries} dalam ${waitTime}s...`);
+                    await new Promise(resolve => setTimeout(resolve, waitTime * 1000));
+                } else {
+                    throw apiError;
+                }
+            }
         }
+        
+        console.log('📝 Raw response:', responseText.substring(0, 200) + '...');
+
+        responseText = responseText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+
+        console.log('🔍 Cleaned response:', responseText.substring(0, 200) + '...');
 
         const itineraryData = JSON.parse(responseText);
+        console.log('✅ JSON berhasil diparse! Title:', itineraryData.title);
 
-        // 2. Simpan ke database
-        const query = `
-            INSERT INTO itineraries (destinasi, tanggal, durasi, pax, budget, preferensi, itinerary_data)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-            RETURNING id
-        `;
-        const values = [destinasi, tanggal, durasi, pax, budget, preferensi, JSON.stringify(itineraryData)];
-        const dbResult = await pool.query(query, values);
+        let savedId = null;
+        try {
+            const query = `
+                INSERT INTO itineraries (destinasi, tanggal, durasi, pax, budget, preferensi, itinerary_data)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                RETURNING id
+            `;
+            const values = [destinasi, tanggal, durasi, pax, budget, preferensi, JSON.stringify(itineraryData)];
+            const dbResult = await pool.query(query, values);
+            savedId = dbResult.rows[0].id;
+            console.log('💾 Tersimpan ke database dengan ID:', savedId);
+        } catch (dbError) {
+            console.warn('⚠️ Gagal simpan ke database (itinerary tetap ditampilkan):', dbError.message);
+        }
         
         res.json({
             success: true,
-            id: dbResult.rows[0].id,
+            id: savedId,
             itinerary: itineraryData
         });
     } catch (error) {
-        console.error('Error:', error);
+        console.error('❌ Error di /api/generate-schedule:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+app.get('/api/history', async (req, res) => {
+    try {
+        const query = 'SELECT id, destinasi, tanggal, durasi, pax, budget, preferensi, created_at FROM itineraries ORDER BY created_at DESC LIMIT 10';
+        const result = await pool.query(query);
+        res.json({ success: true, data: result.rows });
+    } catch (error) {
+        console.error('Error fetching history:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 });
